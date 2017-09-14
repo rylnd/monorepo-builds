@@ -39,14 +39,14 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: ! diff .project-hashes/.project-a-hash{,.new}
+      - run: "! diff .project-hashes/.project-a-hash{,.new}"
 
   project_b_changed:
     <<: *defaults
     steps:
       - attach_workspace:
           at: .
-      - run: ! diff .project-hashes/.project-b-hash{,.new}
+      - run: "! diff .project-hashes/.project-b-hash{,.new}"
 
   save_hashes:
     <<: *defaults

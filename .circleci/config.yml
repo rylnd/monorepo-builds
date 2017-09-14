@@ -10,12 +10,10 @@ jobs:
       - checkout
 
       - run:
-          name: Hash project A
-          command: ls -laR project_a | shasum > .project-a-hash.new
-
-      - run:
-          name: Hash project B
-          command: ls -laR project_b | shasum > .project-b-hash.new
+          name: Hash Projects
+          command: |
+            ls -laR project_a | shasum > .project-a-hash.new
+            ls -laR project_b | shasum > .project-b-hash.new
 
       - restore_cache:
           keys:
@@ -28,7 +26,7 @@ jobs:
             - v1-project-b-hash-master
 
       - run:
-          name: Determine project A build
+          name: Build Projects
           command: |
             if diff .project-a-hash{,.new}; then
               echo "Building Project A"
@@ -36,9 +34,6 @@ jobs:
               echo "Project A won't be built"
             fi
 
-      - run:
-          name: Determine project B build
-          command: |
             if diff .project-b-hash{,.new}; then
               echo "Building Project B"
             else

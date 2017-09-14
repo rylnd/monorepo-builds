@@ -75,11 +75,11 @@ jobs:
           command: echo "install"
 
       - run:
-          name: Build modified Projects
+          name: Build
           command: echo "Building Project A"
 
       - run:
-          name: Test modified Projects
+          name: Test
           command: echo "Testing Project A"
 
       - run:
@@ -100,11 +100,11 @@ jobs:
           command: echo "install"
 
       - run:
-          name: Build modified Projects
+          name: Build
           command: echo "Building Project B"
 
       - run:
-          name: Test modified Projects
+          name: Test
           command: echo "Testing Project B"
 
       - run:

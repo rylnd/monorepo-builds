@@ -29,15 +29,15 @@ jobs:
           name: Build Projects
           command: |
             if diff .project-a-hash{,.new}; then
-              echo "Building Project A"
-            else
               echo "Project A won't be built"
+            else
+              echo "Building Project A"
             fi
 
             if diff .project-b-hash{,.new}; then
-              echo "Building Project B"
-            else
               echo "Project B won't be built"
+            else
+              echo "Building Project B"
             fi
 
       - run:

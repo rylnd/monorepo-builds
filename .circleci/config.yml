@@ -70,7 +70,8 @@ jobs:
     <<: *defaults
     working_directory: ~/monorepo-builds/project_a
     steps:
-      - checkout: ~/monorepo-builds
+      - checkout:
+          path: ~/monorepo-builds
       - run:
           name: Install dependencies
           command: echo "install"
@@ -94,7 +95,8 @@ jobs:
     <<: *defaults
     working_directory: ~/monorepo-builds/project_b
     steps:
-      - checkout: ~/monorepo-builds
+      - checkout:
+          path: ~/monorepo-builds
       - run:
           name: Install dependencies
           command: echo "install"

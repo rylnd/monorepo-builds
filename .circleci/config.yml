@@ -1,80 +1,131 @@
 version: 2
-jobs:
-  build:
-    docker:
-      - image: circleci/node:8.2.1
 
-    working_directory: ~/monorepo-builds
+defaults: &defaults
+  docker:
+    - image: circleci/node:8.2.1
+  working_directory: ~/monorepo-builds
+
+jobs:
+  clone_and_hash:
+    <<: *defaults
 
     steps:
       - checkout
-
-      - run:
-          name: Hash Projects
-          command: |
-            git log --pretty=format:'%H' -n 1 -- project_a > .project-a-hash.new
-            git log --pretty=format:'%H' -n 1 -- project_b > .project-b-hash.new
-
       - restore_cache:
           keys:
             - v1-project-hashes-{{ .Branch }}
             - v1-project-hashes-master
 
       - run:
-          name: Build modified Projects
+          name: Copy old hashes to workspace
           command: |
-            if diff .project-a-hash{,.new} > /dev/null; then
-              echo "Project A won't be built"
-            else
-              echo "Building Project A"
-            fi
+            cp .project-a-hash .project-hashes
+            cp .project-b-hash .project-hashes
 
-            if diff .project-b-hash{,.new} > /dev/null; then
-              echo "Project B won't be built"
-            else
-              echo "Building Project B"
-            fi
+      - run:
+          name: Hash Projects
+          command: |
+            git log --pretty=format:'%H' -n 1 -- project_a > .project-hashes/.project-a-hash.new
+            git log --pretty=format:'%H' -n 1 -- project_b > .project-hashes/.project-b-hash.new
+
+      - persist_to_workspace:
+          paths:
+            - .project-hashes
+
+  project_a_changed:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: .
+      - run: diff .project-hashes/project-a-hash{,.new}
+
+  project_b_changed:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: .
+      - run: diff .project-hashes/project-b-hash{,.new}
+
+  save_hashes:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name:
+          command: |
+            cp .project-hashes/.project-a-hash.new .project-a-hash
+            cp .project-hashes/.project-b-hash.new .project-b-hash
+      - save_cache:
+          key: v1-project-hashes-{{ .Branch }}-{{ epoch }}
+          paths:
+            - .project-a-hash
+            - .project-b-hash
+
+  project_a:
+    working_directory: ~/monorepo-builds/project_a
+    steps:
+      - checkout: ~/monorepo-builds
+      - run:
+          name: Install dependencies
+          command: echo "install"
+
+      - run:
+          name: Build modified Projects
+          command: echo "Building Project A"
 
       - run:
           name: Test modified Projects
-          command: |
-            if diff .project-a-hash{,.new} > /dev/null; then
-              echo "Project A won't be tested"
-            else
-              echo "Testing Project A"
-            fi
-
-            if diff .project-b-hash{,.new} > /dev/null; then
-              echo "Project B won't be tested"
-            else
-              echo "Testing Project B"
-            fi
+          command: echo "Testing Project A"
 
       - run:
           name: Deployment
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              if diff .project-a-hash{,.new} > /dev/null; then
-                echo "Project A won't be deployed"
-              else
-                echo "Deploying Project A"
-              fi
-
-              if diff .project-b-hash{,.new} > /dev/null; then
-                echo "Project B won't be deployed"
-              else
-                echo "Deploying Project B"
-              fi
+              echo "Deploying Project A"
             fi
 
+  project_b:
+    working_directory: ~/monorepo-builds/project_b
+    steps:
+      - checkout: ~/monorepo-builds
       - run:
-          name: Set new project hashes
-          command: |
-            mv .project-a-hash{.new,}
-            mv .project-b-hash{.new,}
+          name: Install dependencies
+          command: echo "install"
 
-      - save_cache:
-          paths:
-            - .project-a-hash
-            - .project-b-hash
-          key: v1-project-hashes-{{ .Branch }}-{{ epoch }}
+      - run:
+          name: Build modified Projects
+          command: echo "Building Project B"
+
+      - run:
+          name: Test modified Projects
+          command: echo "Testing Project B"
+
+      - run:
+          name: Deployment
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              echo "Deploying Project B"
+            fi
+
+workflows:
+  version: 2
+
+  build_test_deploy:
+    jobs:
+      - clone_and_hash
+      - save_hashes:
+          requires:
+            - clone_and_hash
+      - project_a_changed:
+          requires:
+            - clone_and_hash
+      - project_b_changed:
+          requires:
+            - clone_and_hash
+      - project_a:
+          requires:
+            - project_a_changed
+      - project_b:
+          requires:
+            - project_b_changed

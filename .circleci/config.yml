@@ -57,13 +57,13 @@ jobs:
               if diff .project-a-hash{,.new} > /dev/null; then
                 echo "Project A won't be deployed"
               else
-                echo "Deploying Project A"
+                echo ":rocket: Deploying Project A"
               fi
 
               if diff .project-b-hash{,.new} > /dev/null; then
                 echo "Project B won't be deployed"
               else
-                echo "Deploying Project B"
+                echo ":rocket: Deploying Project B"
               fi
             fi
 

@@ -17,13 +17,8 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-project-a-hash-{{ .Branch }}
-            - v1-project-a-hash-master
-
-      - restore_cache:
-          keys:
-            - v1-project-b-hash-{{ .Branch }}
-            - v1-project-b-hash-master
+            - v1-project-hashes-{{ .Branch }}
+            - v1-project-hashes-master
 
       - run:
           name: Build Projects
@@ -49,9 +44,5 @@ jobs:
       - save_cache:
           paths:
             - .project-a-hash
-          key: v1-project-a-hash-{{ .Branch }}-{{ epoch }}
-
-      - save_cache:
-          paths:
             - .project-b-hash
-          key: v1-project-b-hash-{{ .Branch }}-{{ epoch }}
+          key: v1-project-hashes-{{ .Branch }}-{{ epoch }}

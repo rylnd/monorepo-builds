@@ -23,13 +23,13 @@ jobs:
       - run:
           name: Build Projects
           command: |
-            if diff .project-a-hash{,.new}; then
+            if diff .project-a-hash{,.new} > /dev/null; then
               echo "Project A won't be built"
             else
               echo "Building Project A"
             fi
 
-            if diff .project-b-hash{,.new}; then
+            if diff .project-b-hash{,.new} > /dev/null; then
               echo "Project B won't be built"
             else
               echo "Building Project B"

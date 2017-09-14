@@ -29,6 +29,7 @@ jobs:
             git log --pretty=format:'%H' -n 1 -- project_b > .project-hashes/.project-b-hash.new
 
       - persist_to_workspace:
+          root: .
           paths:
             - .project-hashes
 

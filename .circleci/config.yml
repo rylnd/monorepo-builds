@@ -12,10 +12,8 @@ jobs:
       - run:
           name: Hash Projects
           command: |
-            ls -laR project_a
-            ls -laR project_a | shasum > .project-a-hash.new
-            ls -laR project_b
-            ls -laR project_b | shasum > .project-b-hash.new
+            git log --pretty=format:'%H' -n 1 -- project_a > .project-a-hash.new
+            git log --pretty=format:'%H' -n 1 -- project_b > .project-b-hash.new
 
       - restore_cache:
           keys:

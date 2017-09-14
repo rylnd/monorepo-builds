@@ -1,0 +1,62 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8.2.1
+
+    working_directory: ~/monorepo-builds
+
+    steps:
+      - checkout
+
+      - run:
+          name: Hash project A
+          command: ls -laR project_a | shasum > .project-a-hash.new
+
+      - run:
+          name: Hash project B
+          command: ls -laR project_b | shasum > .project-b-hash.new
+
+      - restore_cache:
+          keys:
+            - v1-project-a-hash-{{ .Branch }}
+            - v1-project-a-hash-master
+
+      - restore_cache:
+          keys:
+            - v1-project-b-hash-{{ .Branch }}
+            - v1-project-b-hash-master
+
+      - run:
+          name: Determine project A build
+          command: |
+            if diff .project-a-hash{,.new}; then
+              echo "Building Project A"
+            else
+              echo "Project A won't be built"
+            fi
+
+      - run:
+          name: Determine project B build
+          command: |
+            if diff .project-b-hash{,.new}; then
+              echo "Building Project B"
+            else
+              echo "Project B won't be built"
+            fi
+
+      - run:
+          name: Set new project hashes
+          command: |
+            mv .project-a-hash{.new,}
+            mv .project-b-hash{.new,}
+
+      - save_cache:
+          paths:
+            - .project-a-hash
+          key: v1-project-a-hash-{{ .Branch }}-{{ epoch }}
+
+      - save_cache:
+          paths:
+            - .project-b-hash
+          key: v1-project-b-hash-{{ .Branch }}-{{ epoch }}

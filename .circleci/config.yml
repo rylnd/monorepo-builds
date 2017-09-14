@@ -19,6 +19,7 @@ jobs:
       - run:
           name: Copy old hashes to workspace
           command: |
+            mkdir -p .project-hashes
             cp .project-a-hash .project-hashes
             cp .project-b-hash .project-hashes
 

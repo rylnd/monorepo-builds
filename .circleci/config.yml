@@ -8,7 +8,6 @@ defaults: &defaults
 jobs:
   clone_and_hash:
     <<: *defaults
-
     steps:
       - checkout
       - restore_cache:
@@ -17,7 +16,7 @@ jobs:
             - v1-project-hashes-master
 
       - run:
-          name: Copy old hashes to workspace
+          name: Copy old hashes to shared workspace
           command: |
             mkdir -p .project-hashes
             cp .project-a-hash .project-hashes
@@ -29,40 +28,33 @@ jobs:
             git log --pretty=format:'%H' -n 1 -- project_a > .project-hashes/.project-a-hash.new
             git log --pretty=format:'%H' -n 1 -- project_b > .project-hashes/.project-b-hash.new
 
+      - run:
+          name: Determine Changed Projects
+          command: |
+            if ! diff .project-hashes/.project-a-hash{,.new} > /dev/null; then
+              touch .project-hashes/.project-a-changed
+            fi
+
+            if ! diff .project-hashes/.project-b-hash{,.new} > /dev/null; then
+              touch .project-hashes/.project-b-changed
+            fi
+
+      - run:
+          name: Set current project hashes
+          command: |
+            mv .project-hashes/.project-a-hash{.new,}
+            mv .project-hashes/.project-b-hash{.new,}
+
       - persist_to_workspace:
           root: .
           paths:
             - .project-hashes
 
-  project_a_changed:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: .
-      - run: "! diff .project-hashes/.project-a-hash{,.new}"
-
-  project_b_changed:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: .
-      - run: "! diff .project-hashes/.project-b-hash{,.new}"
-
-  save_hashes:
-    <<: *defaults
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name:
-          command: |
-            cp .project-hashes/.project-a-hash.new .project-a-hash
-            cp .project-hashes/.project-b-hash.new .project-b-hash
       - save_cache:
           key: v1-project-hashes-{{ .Branch }}-{{ epoch }}
           paths:
-            - .project-a-hash
-            - .project-b-hash
+            - .project-hashes/.project-a-hash
+            - .project-hashes/.project-b-hash
 
   project_a:
     <<: *defaults
@@ -120,18 +112,9 @@ workflows:
   build_test_deploy:
     jobs:
       - clone_and_hash
-      - save_hashes:
-          requires:
-            - clone_and_hash
-      - project_a_changed:
-          requires:
-            - clone_and_hash
-      - project_b_changed:
-          requires:
-            - clone_and_hash
       - project_a:
           requires:
-            - project_a_changed
+            - clone_and_hash
       - project_b:
           requires:
-            - project_b_changed
+            - clone_and_hash

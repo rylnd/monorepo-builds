@@ -19,6 +19,7 @@ jobs:
           name: Copy old hashes to shared workspace
           command: |
             mkdir -p .project-metadata
+            ls -al .project-metadata
             cp .project-a-hash .project-metadata
             cp .project-b-hash .project-metadata
 

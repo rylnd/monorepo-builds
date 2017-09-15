@@ -24,13 +24,13 @@ jobs:
             cp .project-b-hash .project-metadata
 
       - run:
-          name: Hash Projects
+          name: Hash projects
           command: |
             git log --pretty=format:'%H' -n 1 -- project_a > .project-metadata/.project-a-hash.new
             git log --pretty=format:'%H' -n 1 -- project_b > .project-metadata/.project-b-hash.new
 
       - run:
-          name: Determine Changed Projects
+          name: Determine changed projects
           command: |
             if ! diff .project-metadata/.project-a-hash{,.new} > /dev/null; then
               touch .project-metadata/.project-a-changed
@@ -64,7 +64,7 @@ jobs:
       - checkout: { path: ~/monorepo-builds }
       - attach_workspace: { at: . }
       - run:
-          name: Check if project changed
+          name: Check whether project changed
           command: |
             if [ -e .project-metadata/.project-a-changed ]; then
               echo "let's do this"
@@ -98,7 +98,7 @@ jobs:
       - checkout: { path: ~/monorepo-builds }
       - attach_workspace: { at: . }
       - run:
-          name: Check if project changed
+          name: Check whether project changed
           command: |
             if [ -e .project-metadata/.project-b-changed ]; then
               echo "let's do this"

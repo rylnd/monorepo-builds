@@ -12,49 +12,49 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-project-hashes-{{ .Branch }}
-            - v1-project-hashes-master
+            - v1-project-metadata-{{ .Branch }}
+            - v1-project-metadata-master
 
       - run:
           name: Copy old hashes to shared workspace
           command: |
-            mkdir -p .project-hashes
-            cp .project-a-hash .project-hashes
-            cp .project-b-hash .project-hashes
+            mkdir -p .project-metadata
+            cp .project-a-hash .project-metadata
+            cp .project-b-hash .project-metadata
 
       - run:
           name: Hash Projects
           command: |
-            git log --pretty=format:'%H' -n 1 -- project_a > .project-hashes/.project-a-hash.new
-            git log --pretty=format:'%H' -n 1 -- project_b > .project-hashes/.project-b-hash.new
+            git log --pretty=format:'%H' -n 1 -- project_a > .project-metadata/.project-a-hash.new
+            git log --pretty=format:'%H' -n 1 -- project_b > .project-metadata/.project-b-hash.new
 
       - run:
           name: Determine Changed Projects
           command: |
-            if ! diff .project-hashes/.project-a-hash{,.new} > /dev/null; then
-              touch .project-hashes/.project-a-changed
+            if ! diff .project-metadata/.project-a-hash{,.new} > /dev/null; then
+              touch .project-metadata/.project-a-changed
             fi
 
-            if ! diff .project-hashes/.project-b-hash{,.new} > /dev/null; then
-              touch .project-hashes/.project-b-changed
+            if ! diff .project-metadata/.project-b-hash{,.new} > /dev/null; then
+              touch .project-metadata/.project-b-changed
             fi
 
       - run:
           name: Set current project hashes
           command: |
-            mv .project-hashes/.project-a-hash{.new,}
-            mv .project-hashes/.project-b-hash{.new,}
+            mv .project-metadata/.project-a-hash{.new,}
+            mv .project-metadata/.project-b-hash{.new,}
 
       - persist_to_workspace:
           root: .
           paths:
-            - .project-hashes
+            - .project-metadata
 
       - save_cache:
-          key: v1-project-hashes-{{ .Branch }}-{{ epoch }}
+          key: v1-project-metadata-{{ .Branch }}-{{ epoch }}
           paths:
-            - .project-hashes/.project-a-hash
-            - .project-hashes/.project-b-hash
+            - .project-metadata/.project-a-hash
+            - .project-metadata/.project-b-hash
 
   project_a:
     <<: *defaults
@@ -65,7 +65,7 @@ jobs:
       - run:
           name: Check if project changed
           command: |
-            if [ -e .project-hashes/.project-a-changed ]; then
+            if [ -e .project-metadata/.project-a-changed ]; then
               echo "let's do this"
             else
               echo "nothing to do"
@@ -99,7 +99,7 @@ jobs:
       - run:
           name: Check if project changed
           command: |
-            if [ -e .project-hashes/.project-b-changed ]; then
+            if [ -e .project-metadata/.project-b-changed ]; then
               echo "let's do this"
             else
               echo "nothing to do"

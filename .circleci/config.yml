@@ -16,35 +16,33 @@ jobs:
             - v1-project-metadata-master
 
       - run:
-          name: Copy old hashes to shared workspace
+          name: Initialize project metadata
           command: |
             mkdir -p .project-metadata
             touch .project-{a,b}-hash
-            cp .project-a-hash .project-metadata
-            cp .project-b-hash .project-metadata
 
       - run:
           name: Hash projects
           command: |
-            git log --pretty=format:'%H' -n 1 -- project_a > .project-metadata/.project-a-hash.new
-            git log --pretty=format:'%H' -n 1 -- project_b > .project-metadata/.project-b-hash.new
+            git log --pretty=format:'%H' -n 1 -- project_a > .project-a-hash.new
+            git log --pretty=format:'%H' -n 1 -- project_b > .project-b-hash.new
 
       - run:
           name: Determine changed projects
           command: |
-            if ! diff .project-metadata/.project-a-hash{,.new}; then
+            if ! diff .project-a-hash{,.new} > /dev/null; then
               touch .project-metadata/.project-a-changed
             fi
 
-            if ! diff .project-metadata/.project-b-hash{,.new}; then
+            if ! diff .project-b-hash{,.new} > /dev/null; then
               touch .project-metadata/.project-b-changed
             fi
 
       - run:
           name: Set current project hashes
           command: |
-            mv .project-metadata/.project-a-hash{.new,}
-            mv .project-metadata/.project-b-hash{.new,}
+            mv .project-a-hash{.new,}
+            mv .project-b-hash{.new,}
 
       - persist_to_workspace:
           root: .
@@ -54,8 +52,8 @@ jobs:
       - save_cache:
           key: v1-project-metadata-{{ .Branch }}-{{ epoch }}
           paths:
-            - .project-metadata/.project-a-hash
-            - .project-metadata/.project-b-hash
+            - .project-a-hash
+            - .project-b-hash
 
   project_a:
     <<: *defaults

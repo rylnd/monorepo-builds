@@ -62,8 +62,15 @@ jobs:
     steps:
       - checkout: { path: ~/monorepo-builds }
       - attach_workspace: { at: . }
-      - run: ls -al
-      - run: ls -al .project-hashes
+      - run:
+          name: Check if project changed
+          command: |
+            if [ -e .project-hashes/.project-a-changed ]; then
+              echo "let's do this"
+            else
+              echo "nothing to do"
+            fi
+
       - run:
           name: Install dependencies
           command: echo "install"
@@ -89,8 +96,15 @@ jobs:
     steps:
       - checkout: { path: ~/monorepo-builds }
       - attach_workspace: { at: . }
-      - run: ls -al
-      - run: ls -al .project-hashes
+      - run:
+          name: Check if project changed
+          command: |
+            if [ -e .project-hashes/.project-b-changed ]; then
+              echo "let's do this"
+            else
+              echo "nothing to do"
+            fi
+
       - run:
           name: Install dependencies
           command: echo "install"

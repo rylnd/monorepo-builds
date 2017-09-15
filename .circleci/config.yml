@@ -32,11 +32,11 @@ jobs:
       - run:
           name: Determine changed projects
           command: |
-            if ! diff .project-metadata/.project-a-hash{,.new} > /dev/null; then
+            if ! diff .project-metadata/.project-a-hash{,.new}; then
               touch .project-metadata/.project-a-changed
             fi
 
-            if ! diff .project-metadata/.project-b-hash{,.new} > /dev/null; then
+            if ! diff .project-metadata/.project-b-hash{,.new}; then
               touch .project-metadata/.project-b-changed
             fi
 

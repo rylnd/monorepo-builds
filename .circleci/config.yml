@@ -62,6 +62,8 @@ jobs:
     steps:
       - checkout: { path: ~/monorepo-builds }
       - attach_workspace: { at: . }
+      - run: ls -al
+      - run: ls -al .project-hashes
       - run:
           name: Install dependencies
           command: echo "install"
@@ -87,6 +89,8 @@ jobs:
     steps:
       - checkout: { path: ~/monorepo-builds }
       - attach_workspace: { at: . }
+      - run: ls -al
+      - run: ls -al .project-hashes
       - run:
           name: Install dependencies
           command: echo "install"

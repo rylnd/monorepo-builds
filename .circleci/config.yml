@@ -10,7 +10,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - run: ls -al tmp
+      - run: ls -al tmp || true
 
       - restore_cache:
           keys:

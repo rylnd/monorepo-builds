@@ -20,14 +20,17 @@ jobs:
           command: |
             mkdir -p .project-metadata
             mkdir -p tmp
-            ls tmp
             touch tmp/.project-{a,b}-hash
+
+      - run: ls -al tmp
 
       - run:
           name: Hash projects
           command: |
             git log --pretty=format:'%H' -n 1 -- project_a > tmp/.project-a-hash.new
             git log --pretty=format:'%H' -n 1 -- project_b > tmp/.project-b-hash.new
+
+      - run: ls -al tmp
 
       - run:
           name: Determine changed projects

@@ -10,10 +10,14 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - run: ls -al tmp
+
       - restore_cache:
           keys:
             - v1-project-metadata-{{ .Branch }}
             - v1-project-metadata-master
+
+      - run: ls -al tmp
 
       - run:
           name: Initialize project metadata

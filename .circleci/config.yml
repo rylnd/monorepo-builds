@@ -19,30 +19,31 @@ jobs:
           name: Initialize project metadata
           command: |
             mkdir -p .project-metadata
-            touch .project-{a,b}-hash
+            mkdir -p tmp
+            touch tmp/.project-{a,b}-hash
 
       - run:
           name: Hash projects
           command: |
-            git log --pretty=format:'%H' -n 1 -- project_a > .project-a-hash.new
-            git log --pretty=format:'%H' -n 1 -- project_b > .project-b-hash.new
+            git log --pretty=format:'%H' -n 1 -- project_a > tmp/.project-a-hash.new
+            git log --pretty=format:'%H' -n 1 -- project_b > tmp/.project-b-hash.new
 
       - run:
           name: Determine changed projects
           command: |
-            if ! diff .project-a-hash{,.new} > /dev/null; then
+            if ! diff tmp/.project-a-hash{,.new} > /dev/null; then
               touch .project-metadata/.project-a-changed
             fi
 
-            if ! diff .project-b-hash{,.new} > /dev/null; then
+            if ! diff tmp/.project-b-hash{,.new} > /dev/null; then
               touch .project-metadata/.project-b-changed
             fi
 
       - run:
           name: Set current project hashes
           command: |
-            mv .project-a-hash{.new,}
-            mv .project-b-hash{.new,}
+            mv tmp/.project-a-hash{.new,}
+            mv tmp/.project-b-hash{.new,}
 
       - persist_to_workspace:
           root: .
@@ -52,8 +53,7 @@ jobs:
       - save_cache:
           key: v1-project-metadata-{{ .Branch }}-{{ epoch }}
           paths:
-            - .project-a-hash
-            - .project-b-hash
+            - tmp/*
 
   project_a:
     <<: *defaults

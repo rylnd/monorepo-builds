@@ -61,7 +61,7 @@ jobs:
       - save_cache:
           key: v1-project-metadata-{{ .Branch }}-{{ epoch }}
           paths:
-            - tmp/*
+            - tmp
 
   project_a:
     <<: *defaults

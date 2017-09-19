@@ -20,6 +20,7 @@ jobs:
           command: |
             mkdir -p .project-metadata
             mkdir -p tmp
+            ls tmp
             touch tmp/.project-{a,b}-hash
 
       - run:
@@ -31,11 +32,11 @@ jobs:
       - run:
           name: Determine changed projects
           command: |
-            if ! diff tmp/.project-a-hash{,.new} > /dev/null; then
+            if ! diff tmp/.project-a-hash{,.new}; then
               touch .project-metadata/.project-a-changed
             fi
 
-            if ! diff tmp/.project-b-hash{,.new} > /dev/null; then
+            if ! diff tmp/.project-b-hash{,.new}; then
               touch .project-metadata/.project-b-changed
             fi
 
